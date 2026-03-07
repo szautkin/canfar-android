@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,12 +9,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-import java.util.Properties
-
 val signingPropsFile = rootProject.file("signing.properties")
-val signingProps = Properties().apply {
-    if (signingPropsFile.exists()) load(signingPropsFile.inputStream())
-}
+val signingProps =
+    Properties().apply {
+        if (signingPropsFile.exists()) load(signingPropsFile.inputStream())
+    }
 
 android {
     namespace = "net.canfar.verbinal"
