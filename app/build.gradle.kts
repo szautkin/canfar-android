@@ -7,6 +7,13 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+import java.util.Properties
+
+val signingPropsFile = rootProject.file("signing.properties")
+val signingProps = Properties().apply {
+    if (signingPropsFile.exists()) load(signingPropsFile.inputStream())
+}
+
 android {
     namespace = "net.canfar.verbinal"
     compileSdk = 36
@@ -19,6 +26,17 @@ android {
         versionName = "1.0.0"
     }
 
+    signingConfigs {
+        if (signingPropsFile.exists()) {
+            create("release") {
+                storeFile = file(signingProps["storeFile"] as String)
+                storePassword = signingProps["storePassword"] as String
+                keyAlias = signingProps["keyAlias"] as String
+                keyPassword = signingProps["keyPassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -27,6 +45,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            if (signingPropsFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {

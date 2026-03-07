@@ -18,3 +18,8 @@
 # OkHttp
 -dontwarn okhttp3.**
 -dontwarn okio.**
+
+# Google Tink / EncryptedSharedPreferences
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn javax.annotation.**
+-dontwarn com.google.api.client.http.**
