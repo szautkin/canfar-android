@@ -23,8 +23,8 @@ android {
         applicationId = "net.canfar.verbinal"
         minSdk = 31
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
     }
 
     signingConfigs {
@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.biometric)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

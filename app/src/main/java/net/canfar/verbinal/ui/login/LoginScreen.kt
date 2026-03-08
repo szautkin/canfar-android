@@ -177,7 +177,7 @@ fun LoginScreen(
                     Spacer(Modifier.height(12.dp))
                     Text("Verbinal", style = MaterialTheme.typography.titleLarge)
                     Text("A CANFAR Science Portal Companion", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                    Text("Version 1.0.0", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                    Text("Version 1.1.0", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
                     Spacer(Modifier.height(12.dp))
                     Text(
                         "Verbinal is a companion for the CANFAR (Canadian Advanced Network for Astronomical Research) web portal at canfar.net.\n\n" +

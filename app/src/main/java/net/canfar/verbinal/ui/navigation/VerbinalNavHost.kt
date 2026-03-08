@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import net.canfar.verbinal.ui.MainViewModel
 import net.canfar.verbinal.ui.dashboard.DashboardScreen
+import net.canfar.verbinal.ui.login.BiometricUnlockScreen
 import net.canfar.verbinal.ui.login.LoginScreen
 
 @Composable
@@ -25,6 +26,7 @@ fun VerbinalNavHost(
 
     val startDestination = when {
         mainState.isLoading -> "loading"
+        mainState.requiresBiometric -> "biometric"
         mainState.isAuthenticated -> "dashboard"
         else -> "login"
     }
@@ -34,6 +36,13 @@ fun VerbinalNavHost(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
+        }
+
+        composable("biometric") {
+            BiometricUnlockScreen(
+                onSuccess = { mainViewModel.onBiometricSuccess() },
+                onUsePassword = { mainViewModel.onBiometricFailure() },
+            )
         }
 
         composable("login") {

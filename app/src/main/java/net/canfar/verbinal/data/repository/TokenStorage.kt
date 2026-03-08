@@ -45,6 +45,35 @@ constructor(
         return token to username
     }
 
+    fun saveCredentials(
+        username: String,
+        password: String,
+    ) {
+        prefs
+            .edit()
+            .putString(KEY_CRED_USERNAME, username)
+            .putString(KEY_CRED_PASSWORD, password)
+            .apply()
+    }
+
+    fun loadCredentials(): Pair<String?, String?> {
+        val username = prefs.getString(KEY_CRED_USERNAME, null)
+        val password = prefs.getString(KEY_CRED_PASSWORD, null)
+        return username to password
+    }
+
+    fun hasStoredSession(): Boolean = prefs.getString(KEY_CRED_USERNAME, null) != null
+
+    fun clearAll() {
+        prefs
+            .edit()
+            .remove(KEY_TOKEN)
+            .remove(KEY_USERNAME)
+            .remove(KEY_CRED_USERNAME)
+            .remove(KEY_CRED_PASSWORD)
+            .apply()
+    }
+
     fun clearToken() {
         prefs
             .edit()
@@ -56,5 +85,7 @@ constructor(
     companion object {
         private const val KEY_TOKEN = "auth_token"
         private const val KEY_USERNAME = "username"
+        private const val KEY_CRED_USERNAME = "cred_username"
+        private const val KEY_CRED_PASSWORD = "cred_password"
     }
 }

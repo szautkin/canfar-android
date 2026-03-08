@@ -41,8 +41,9 @@ constructor(
 
                 if (rememberMe) {
                     tokenStorage.saveToken(token, username)
+                    tokenStorage.saveCredentials(username, password)
                 } else {
-                    tokenStorage.clearToken()
+                    tokenStorage.clearAll()
                 }
 
                 AuthResult(success = true, token = token, username = username)
@@ -58,6 +59,14 @@ constructor(
         } catch (e: Exception) {
             AuthResult(success = false, errorMessage = "Network error: ${e.message}")
         }
+    }
+
+    suspend fun loginWithStoredCredentials(): AuthResult? {
+        val (username, password) = tokenStorage.loadCredentials()
+        if (username != null && password != null) {
+            return login(username, password, rememberMe = true)
+        }
+        return null
     }
 
     suspend fun validateToken(token: String): String? = try {
@@ -95,8 +104,10 @@ constructor(
         tokenProvider.clear()
         currentUsername = null
         isAuthenticated = false
-        tokenStorage.clearToken()
+        tokenStorage.clearAll()
     }
+
+    fun hasStoredSession(): Boolean = tokenStorage.hasStoredSession()
 
     fun loadStoredToken(): Pair<String?, String?> = tokenStorage.loadToken()
 }
