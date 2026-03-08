@@ -6,7 +6,6 @@ import net.canfar.verbinal.data.model.SkahaSessionResponse
 import net.canfar.verbinal.data.model.SkahaStatsResponse
 import retrofit2.Response
 import retrofit2.http.DELETE
-import retrofit2.http.Field
 import retrofit2.http.FieldMap
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -36,12 +35,10 @@ interface SkahaApi {
         @Path("id") id: String,
     ): Response<Unit>
 
-    @FormUrlEncoded
     @POST("v1/session/{id}")
     suspend fun renewSession(
         @Path("id") id: String,
         @Query("action") action: String = "renew",
-        @Field("dummy") dummy: String = "",
     ): Response<Unit>
 
     @GET("v1/session/{id}")
