@@ -1,9 +1,12 @@
 package net.canfar.verbinal.data.repository
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.security.GeneralSecurityException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,7 +14,7 @@ import javax.inject.Singleton
 class TokenStorage
 @Inject
 constructor(
-    @ApplicationContext context: Context,
+    @ApplicationContext private val context: Context,
 ) {
     private val masterKey =
         MasterKey
@@ -19,14 +22,23 @@ constructor(
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
 
-    private val prefs =
-        EncryptedSharedPreferences.create(
-            context,
-            "verbinal_secure_prefs",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-        )
+    private val prefs: SharedPreferences by lazy {
+        try {
+            createEncryptedPrefs()
+        } catch (e: GeneralSecurityException) {
+            Log.w("TokenStorage", "Encrypted prefs corrupted, resetting", e)
+            context.deleteSharedPreferences(PREFS_FILE)
+            createEncryptedPrefs()
+        }
+    }
+
+    private fun createEncryptedPrefs(): SharedPreferences = EncryptedSharedPreferences.create(
+        context,
+        PREFS_FILE,
+        masterKey,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+    )
 
     fun saveToken(
         token: String,
@@ -39,11 +51,11 @@ constructor(
             .apply()
     }
 
-    fun loadToken(): Pair<String?, String?> {
+    fun loadToken(): Pair<String?, String?> = readSafely {
         val token = prefs.getString(KEY_TOKEN, null)
         val username = prefs.getString(KEY_USERNAME, null)
-        return token to username
-    }
+        token to username
+    } ?: (null to null)
 
     fun saveCredentials(
         username: String,
@@ -56,13 +68,15 @@ constructor(
             .apply()
     }
 
-    fun loadCredentials(): Pair<String?, String?> {
+    fun loadCredentials(): Pair<String?, String?> = readSafely {
         val username = prefs.getString(KEY_CRED_USERNAME, null)
         val password = prefs.getString(KEY_CRED_PASSWORD, null)
-        return username to password
-    }
+        username to password
+    } ?: (null to null)
 
-    fun hasStoredSession(): Boolean = prefs.getString(KEY_CRED_USERNAME, null) != null
+    fun hasStoredSession(): Boolean = readSafely {
+        prefs.getString(KEY_CRED_USERNAME, null) != null
+    } ?: false
 
     fun clearAll() {
         prefs
@@ -82,7 +96,16 @@ constructor(
             .apply()
     }
 
+    private fun <T> readSafely(block: () -> T): T? = try {
+        block()
+    } catch (e: GeneralSecurityException) {
+        Log.w("TokenStorage", "Failed to decrypt stored data, clearing", e)
+        context.deleteSharedPreferences(PREFS_FILE)
+        null
+    }
+
     companion object {
+        private const val PREFS_FILE = "verbinal_secure_prefs"
         private const val KEY_TOKEN = "auth_token"
         private const val KEY_USERNAME = "username"
         private const val KEY_CRED_USERNAME = "cred_username"
